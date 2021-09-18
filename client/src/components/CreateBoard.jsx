@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 import { Form, Button } from 'semantic-ui-react'
-import DataGrid from './DataGrid'
-import api from '../api'
 
 class CreateBoard extends Component {
   constructor(props) {
@@ -11,22 +9,21 @@ class CreateBoard extends Component {
       width: ''
     }
   }
-  // state = { length: '', width: ''}
   handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
   handleSubmit = async () => {
     const { length, width } = this.state
-    const payload = { length, width }
 
-    console.log(`the height is ${length} and the width is ${width}`)
-
-    await api.startSimulation(payload).then(res => {
-      console.log('this simulation was stored')
-      this.setState({ length: '', width: '' })
-      console.log(res.data.data)
-      this.props.setGridData(res.data.data)
-      // <DataGrid data={res.data.data} />
-    })
+    let grid = []
+    
+    for (let i = 0; i < length; i++) {
+      let row = [];
+      for (var j = 0; j < width; j++) {
+        row.push(Math.round(Math.random()));
+      }
+      grid[i] = row;
+    }
+    this.props.setGridData(grid);
   }
   render() {
     const { length, width } = this.state

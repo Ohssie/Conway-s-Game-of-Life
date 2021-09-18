@@ -8,7 +8,7 @@
 }
 
 .Cell {
-  background: #ccc;
+  background: rgb(250, 250, 250);
   position: absolute;
 }
 

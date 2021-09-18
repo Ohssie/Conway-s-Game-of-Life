@@ -1,34 +1,40 @@
-import { Container, Grid, GridColumn, Segment, Divider } from 'semantic-ui-react'
+import { Container, Grid, Segment } from 'semantic-ui-react'
 import CreateBoard from './components/CreateBoard'
-import ListSimulations from './components/ListSimulations'
 import DataGrid from './components/DataGrid'
-import logo from './logo.svg';
-import { useState } from 'react';
-// import './App.css';
+import { useState, useEffect } from 'react';
 
 function App() {
-  const [gridData, setGridData] = useState([])
+  const [gridData, setGridData] = useState(null)
+  useEffect(() => {
+    try {
+      const loc = localStorage.getItem('grid')
+      if (loc != null) setGridData(JSON.parse(loc));
+      console.log({loc})
+    } catch (e) {
+      console.log(e.message)
+    }
+    
+  });
+  console.log({gridData})
   return (
     <div>
       <Grid centered columns={2} relaxed='very' style={{ margin: 10 }}>
-        <Grid.Column width={4}>
+        {gridData == null && <Grid.Column width={4}>
           <Segment>
             <Container>
               <CreateBoard setGridData={setGridData} />
             </Container>
           </Segment>
-          <Segment>
-            <Container>
-              <ListSimulations setGridData={setGridData} />
-            </Container>
-          </Segment>
         </Grid.Column>
+        }
         {/* <Divider vertical/> */}
-        <Grid.Column width={12}>
-          <Container>
-            <DataGrid data={gridData}/>
-          </Container>
-        </Grid.Column>
+        {gridData != null &&
+          <Grid.Column width={16}>
+            <Container>
+              <DataGrid data={gridData} setGridData={setGridData} />
+            </Container>
+          </Grid.Column>
+        }
       </Grid>
     </div>
   );

@@ -1,31 +1,47 @@
 import React, { Component } from 'react'
 import { List } from 'semantic-ui-react'
+import api from '../api'
 
 class ListSimulations extends Component {
+  constructor(props) {
+    super(props)
+    this.state= {
+      simulations: [],
+      columns: [],
+      isLoading: false,
+    }
+  }
+
+  componentDidMount = async () => {
+    this.setState({ isLoading: true })
+
+    await api.getAllSimulations().then(simulations => {
+      console.log({simulations})
+      this.setState({
+        simulations: simulations.data.data,
+        isLoading: false
+      })
+    })
+  }
+
   render() {
+    const { simulations, isLoading } = this.state
+    let showSimulations = true
+    if (!simulations.length) {
+      showSimulations = false
+    }
+    console.log(`here are the simulations => ${simulations}`)
     return (
       <List divided relaxed>
-        <List.Item>
-          <List.Icon name='github' size='large' verticalAlign='middle' />
-          <List.Content>
-            <List.Header as='a'>Semantic-Org/Semantic-UI</List.Header>
-            <List.Description as='a'>Updated 10 mins ago</List.Description>
-          </List.Content>
-        </List.Item>
-        <List.Item>
-          <List.Icon name='github' size='large' verticalAlign='middle' />
-          <List.Content>
-            <List.Header as='a'>Semantic-Org/Semantic-UI-Docs</List.Header>
-            <List.Description as='a'>Updated 22 mins ago</List.Description>
-          </List.Content>
-        </List.Item>
-        <List.Item>
-          <List.Icon name='github' size='large' verticalAlign='middle' />
-          <List.Content>
-            <List.Header as='a'>Semantic-Org/Semantic-UI-Meteor</List.Header>
-            <List.Description as='a'>Updated 34 mins ago</List.Description>
-          </List.Content>
-        </List.Item>
+        {simulations.map(board => (
+          <List.Item>
+            <List.Icon name='play' size='small' verticalAlign='middle' />
+            <List.Content>
+              <List.Header as='a'>{ board._id }</List.Header>
+              {/* <List.Description>{ board.createdAt }</List.Description> */}
+            </List.Content>
+          </List.Item>
+        ))}
       </List>
     )
   }

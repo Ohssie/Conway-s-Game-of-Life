@@ -119,7 +119,7 @@ class DataGrid extends Component {
 
   runIteration() {
     let newBoard = this.board
-    console.log({newBoard})
+    // console.log({newBoard})
    
     /** works well for the M*M matrix but not for M*N matrix. Working on the M*N matrix scenario */
     if(this.state.cols === this.state.rows) {
@@ -221,7 +221,7 @@ class DataGrid extends Component {
           <Button color='red' onClick={this.stopGame} style={{ marginLeft: 10 }}>Stop!</Button>:
           <Button color='green' onClick={this.runGame} style={{ marginLeft: 10 }}>Run!</Button>
         }
-        <Button color='black' onClick={this.handleClear}>Clear!</Button>
+        <Button color='black' onClick={this.handleClear}>Clear</Button>
 
       </div>
     );

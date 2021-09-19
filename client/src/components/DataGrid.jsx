@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Form, Input, Button } from 'semantic-ui-react'
 import './grid.css'
 
 class Cell extends React.Component {
@@ -35,12 +36,13 @@ class DataGrid extends Component {
   }
 
   componentDidMount = async () => {
-    console.log('component did mount call')
     let CELL_SIZE;
-
-    if(this.props.data.length <= 100) {
+    /** Get a better implementation to handle this */
+    if(this.props.data.length <= 50) {
+      CELL_SIZE = 30
+    } else if(51 <= this.props.data.length <= 100) {
       CELL_SIZE = 15
-    } else if (100 < this.props.data.length <= 1000 ) {
+    } else if (101 <= this.props.data.length <= 1000 ) {
       CELL_SIZE = 5
     }
     let WIDTH = (this.props.data.length) * CELL_SIZE;
@@ -116,23 +118,12 @@ class DataGrid extends Component {
   }
 
   runIteration() {
-    let newBoard = this.makeEmptyBoard();
-
-    for (let y = 0; y < this.state.rows; y++) {
-      for (let x = 0; x < this.state.cols; x++) {
-        let neighbors = this.calculateNeighbors(this.board, x, y);
-        if (this.board[y][x]) {
-          if (neighbors === 2 || neighbors === 3) {
-            newBoard[y][x] = 1;
-          } else {
-            newBoard[y][x] = 0;
-          }
-        } else {
-          if (!this.board[y][x] && neighbors === 3) {
-            newBoard[y][x] = 1;
-          }
-        }
-      }
+    let newBoard = this.board
+    console.log({newBoard})
+   
+    /** works well for the M*M matrix but not for M*N matrix. Working on the M*N matrix scenario */
+    if(this.state.cols === this.state.rows) {
+      newBoard = this.nextGeneration(this.board, this.state.rows, this.state.cols)
     }
     
     try {
@@ -148,25 +139,47 @@ class DataGrid extends Component {
     }, this.state.interval);
   }
 
-  /**
-   * Calculate the number of neighbors at point (x, y)
-   * @param {Array} board 
-   * @param {int} x 
-   * @param {int} y 
-   */
-  calculateNeighbors(board, x, y) {
-    let neighbors = 0;
-    const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
-    for (let i = 0; i < dirs.length; i++) {
-      const dir = dirs[i];
-      let y1 = y + dir[0];
-      let x1 = x + dir[1];
+  nextGeneration(board, rows, cols) {
+    let initialGrid = board;
 
-      if (x1 >= 0 && x1 < this.state.cols && y1 >= 0 && y1 < this.state.rows && board[y1][x1]) {
-        neighbors++;
+  // Deep copying the initial array to avoid overwriting the initial onemptied
+  let newBoard = JSON.parse(JSON.stringify(initialGrid));
+
+  // Getting the length of the array and subarrays
+  let lenX = rows;
+  let lenY = cols;
+
+  for (let i = 1; i < (lenX - 1); i++) {
+    for (let j = 1; j < (lenY - 1); j++) {
+      let aliveNeighbors = 0;
+
+      // After picking the element, we need to check for the amount of surrounding neighbors alive
+      // Doing this, we check the rows above and below and the columns beside the element
+      for (let left = -1; left <= 1; left++) {
+        for (let right = -1; right <= 1; right++) {
+          aliveNeighbors = aliveNeighbors + initialGrid[i + left][j + right]
+        }
+      }
+      aliveNeighbors -= initialGrid[i][j]
+
+      const element = initialGrid[i][j]
+
+      // Die lonely
+      if ((element === 1) && (aliveNeighbors < 2)) {
+        newBoard[i][j] = 0
+      } else if ((element === 1) && (aliveNeighbors > 3)) {
+        // Killed by the crowd
+        newBoard[i][j] = 0
+      } else if ((element === 0) && (aliveNeighbors === 3)) {
+        // Resurrection time!
+        newBoard[i][j] = 1
+      } else {
+        // Live your life
+        newBoard[i][j] = initialGrid[i][j]
       }
     }
-    return neighbors;
+  }
+  return newBoard;
   }
 
   handleIntervalChange = (event) => {
@@ -180,7 +193,7 @@ class DataGrid extends Component {
   }
 
   render() {
-    const { cells, interval, isRunning, WIDTH, HEIGHT, CELL_SIZE } = this.state;
+    const { cells, isRunning, WIDTH, HEIGHT, CELL_SIZE } = this.state;
     console.log('in the render')
     return (
       <div>
@@ -194,14 +207,22 @@ class DataGrid extends Component {
           ))}
         </div>
 
-        <div className="controls">
-          Update every <input value={this.state.interval} onChange={this.handleIntervalChange} /> msec
-          {isRunning ?
-            <button className="button" onClick={this.stopGame}>Stop</button> :
-            <button className="button" onClick={this.runGame}>Run</button>
-          }
-          <button className="button" onClick={this.handleClear}>Clear</button>
-        </div>
+       
+        <Form style={{ margin: 10 }}>
+          <Form.Group widths={2}>
+            <Form.Field>
+              <label>Update speed (ms)</label>
+              <Input fluid value={this.state.interval} onChange={this.handleIntervalChange} />
+            </Form.Field>
+          </Form.Group>
+        </Form>
+        
+        {isRunning ?
+          <Button color='red' onClick={this.stopGame} style={{ marginLeft: 10 }}>Stop!</Button>:
+          <Button color='green' onClick={this.runGame} style={{ marginLeft: 10 }}>Run!</Button>
+        }
+        <Button color='black' onClick={this.handleClear}>Clear!</Button>
+
       </div>
     );
   } 

@@ -9,16 +9,14 @@ function App() {
     try {
       const loc = localStorage.getItem('grid')
       if (loc != null) setGridData(JSON.parse(loc));
-      console.log({loc})
     } catch (e) {
       console.log(e.message)
     }
     
-  });
-  console.log({gridData})
+  }, []);
   return (
     <div>
-      <Grid centered columns={2} relaxed='very' style={{ margin: 10 }}>
+      <Grid centered style={{ margin: 10 }}>
         {gridData == null && <Grid.Column width={4}>
           <Segment>
             <Container>
@@ -27,12 +25,13 @@ function App() {
           </Segment>
         </Grid.Column>
         }
-        {/* <Divider vertical/> */}
         {gridData != null &&
-          <Grid.Column width={16}>
-            <Container>
-              <DataGrid data={gridData} setGridData={setGridData} />
-            </Container>
+          <Grid.Column width={16} centered='true'>
+            {/* <Segment> */}
+              <Container>
+                <DataGrid data={gridData} setGridData={setGridData} />
+              </Container>
+            {/* </Segment> */}
           </Grid.Column>
         }
       </Grid>

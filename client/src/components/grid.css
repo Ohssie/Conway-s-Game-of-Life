@@ -10,6 +10,8 @@
 .Cell {
   background: rgb(250, 250, 250);
   position: absolute;
+  border: 0.1px solid #000;
+  border-spacing: 0;
 }
 
 .controls {
